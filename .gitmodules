@@ -1,0 +1,9 @@
+[submodule "libs/sokol"]
+	path = libs/sokol
+	url = https://github.com/floooh/sokol.git
+[submodule "libs/imgui"]
+	path = libs/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "libs/stb"]
+	path = libs/stb
+	url = https://github.com/nothings/stb.git
