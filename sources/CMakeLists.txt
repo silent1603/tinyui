@@ -17,12 +17,14 @@ target_include_directories(${TARGET} PUBLIC
     ${CMAKE_SOURCE_DIR}/libs/stb)
 
 target_link_libraries(${TARGET}  sokol stb)
+message(STATUS ${CMAKE_SYSTEM_NAME})
 # Emscripten-specific linker options
 if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
+    message(STATUS "Configuration Emscripten")
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
-    target_link_options(imzip PRIVATE -sEXPORTED_FUNCTIONS=_main)
+    target_link_options(${TARGET} PRIVATE -sEXPORTED_FUNCTIONS=_main)
     # File system support: https://emscripten.org/docs/api_reference/Filesystem-API.html#including-file-system-support
-    target_link_options(imzip PRIVATE -sWASMFS -sFORCE_FILESYSTEM -sEXPORTED_RUNTIME_METHODS=['FS'] -sALLOW_MEMORY_GROWTH)
+    target_link_options(${TARGET} PRIVATE -sWASMFS -sFORCE_FILESYSTEM -sEXPORTED_RUNTIME_METHODS=['FS'] -sALLOW_MEMORY_GROWTH)
     # use our own minimal shell.html
     target_link_options(${TARGET} PRIVATE --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/html/shell.html)
     # link with WebGL2
