@@ -7,5 +7,5 @@ if (CMAKE_SYSTEM_NAME STREQUAL Linux)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
 endif()
-
+add_subdirectory(libs)
 add_subdirectory(sources)

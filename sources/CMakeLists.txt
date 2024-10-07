@@ -16,6 +16,7 @@ target_include_directories(${TARGET} PUBLIC
     ${CMAKE_SOURCE_DIR}/libs/sokol 
     ${CMAKE_SOURCE_DIR}/libs/stb)
 
+target_link_libraries(${TARGET}  sokol stb)
 # Emscripten-specific linker options
 if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
