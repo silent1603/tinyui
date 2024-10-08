@@ -17,24 +17,9 @@ target_include_directories(${TARGET} PUBLIC
     ${CMAKE_SOURCE_DIR}/libs/stb)
 
 target_link_libraries(${TARGET} PUBLIC sokol stb)
-message(STATUS ${CMAKE_SYSTEM_NAME})
-# Emscripten-specific linker options
-if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
-    message(STATUS "Configuration Emscripten")
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
-    target_link_options(${TARGET} PRIVATE -sEXPORTED_FUNCTIONS=_main)
-    # File system support: https://emscripten.org/docs/api_reference/Filesystem-API.html#including-file-system-support
-    target_link_options(${TARGET} PRIVATE -sWASMFS -sFORCE_FILESYSTEM -sEXPORTED_RUNTIME_METHODS=['FS'] -sALLOW_MEMORY_GROWTH)
-    # use our own minimal shell.html
-    target_link_options(${TARGET} PRIVATE --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/html/shell.html)
-    # link with WebGL2
-    target_link_options(${TARGET} PRIVATE -sUSE_WEBGL2=1)
-    # WASM+JS size optimizations
-    target_link_options(${TARGET} PRIVATE -sNO_FILESYSTEM=1 -sASSERTIONS=0 -sMALLOC=emmalloc --closure=1)
-endif()
 
 # explicitly strip dead code
-if (CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT CMAKE_SYSTEM_NAME STREQUAL Emscripten)
+if (CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT EMSCRIPTEN)
     target_link_options(${TARGET} PRIVATE LINKER:-dead_strip)
 endif()
 
@@ -46,8 +31,25 @@ if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
         "-framework MetalKit"
         "-framework Metal")
 else()
-    if (CMAKE_SYSTEM_NAME STREQUAL Linux)
+    if (CMAKE_SYSTEM_NAME STREQUAL Linux AND NOT EMSCRIPTEN )
+        message(STATUS "Linux Linking System Libs")
         target_link_libraries(${TARGET} INTERFACE X11 Xi Xcursor GL dl m)
         target_link_libraries(${TARGET} PUBLIC Threads::Threads)
     endif()
 endif()
+
+# Emscripten-specific linker options
+if (EMSCRIPTEN)
+    message(STATUS "Configuration Emscripten")
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    target_link_options(${TARGET} PRIVATE -sEXPORTED_FUNCTIONS=_main)
+    # File system support: https://emscripten.org/docs/api_reference/Filesystem-API.html#including-file-system-support
+    target_link_options(${TARGET} PRIVATE -sWASMFS -sFORCE_FILESYSTEM -sEXPORTED_RUNTIME_METHODS=['FS'] -sALLOW_MEMORY_GROWTH)
+    # use our own minimal shell.html
+    target_link_options(${TARGET} PRIVATE --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/html/shell.html)
+    # link with WebGL2
+    target_link_options(${TARGET} PRIVATE -sUSE_WEBGL2=1)
+    # WASM+JS size optimizations
+    target_link_options(${TARGET} PRIVATE -sASSERTIONS=0 -sMALLOC=emmalloc --closure=1)
+endif()
+
