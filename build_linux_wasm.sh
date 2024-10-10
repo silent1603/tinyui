@@ -3,7 +3,7 @@
 if [ -d ./builds/linux_wasm ]; then
   echo "Directory exists."
 else
-    mkdir -p ./builds/linux_wasm
+  sudo mkdir -p ./builds/linux_wasm
 fi
-emmake cmake -G Ninja -B ./builds/linux_wasm
+emmake cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/tools/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -G Ninja -B ./builds/linux_wasm
 

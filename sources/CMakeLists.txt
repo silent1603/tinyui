@@ -37,22 +37,6 @@ if (EMSCRIPTEN EQUAL 1)
     target_link_options(${TARGET} PRIVATE -sUSE_WEBGL2=1)
     # WASM+JS size optimizations
     target_link_options(${TARGET} PRIVATE -sASSERTIONS=0 -sMALLOC=emmalloc --closure=1)
-
-
-    if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-        message(STATUS "Darwin Linking System Libs")
-        target_compile_options(${TARGET} PRIVATE -x objective-c)
-        target_link_libraries(${TARGET} PUBLIC
-            "-framework QuartzCore"
-            "-framework Cocoa"
-            "-framework MetalKit"
-         "-framework Metal")
-    elif(CMAKE_SYSTEM_NAME STREQUAL Windows)
-    elif(CMAKE_SYSTEM_NAME STREQUAL Linux)
-        message(STATUS "Linux Linking System Libs")
-        target_link_libraries(${TARGET} INTERFACE X11 Xi Xcursor GL dl m)
-        target_link_libraries(${TARGET} PUBLIC Threads::Threads)
-    endif()
 else()
     if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
         target_compile_options(${TARGET} PRIVATE -x objective-c)
