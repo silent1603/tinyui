@@ -18,14 +18,9 @@ target_include_directories(${TARGET} PUBLIC
 
 target_link_libraries(${TARGET} PUBLIC sokol stb)
 
-# explicitly strip dead code
-if (CMAKE_C_COMPILER_ID MATCHES "Clang" AND EMSCRIPTEN EQUAL 0)
-    target_link_options(${TARGET} PRIVATE LINKER:-dead_strip)
-endif()
-
 message(STATUS "SYSTEM ${CMAKE_SYSTEM_NAME}")
 # Emscripten-specific linker options
-if (EMSCRIPTEN EQUAL 1)
+if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
     message(STATUS "Configuration Emscripten")
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     target_link_options(${TARGET} PRIVATE -sEXPORTED_FUNCTIONS=_main)
@@ -38,6 +33,11 @@ if (EMSCRIPTEN EQUAL 1)
     # WASM+JS size optimizations
     target_link_options(${TARGET} PRIVATE -sASSERTIONS=0 -sMALLOC=emmalloc --closure=1)
 else()
+    # explicitly strip dead code
+    if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+        target_link_options(${TARGET} PRIVATE LINKER:-dead_strip)
+    endif()
+
     if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
         target_compile_options(${TARGET} PRIVATE -x objective-c)
         target_link_libraries(${TARGET} PUBLIC
