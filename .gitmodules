@@ -10,3 +10,12 @@
 [submodule "tools/emsdk"]
 	path = tools/emsdk
 	url = https://github.com/emscripten-core/emsdk.git
+[submodule "libs/box2d"]
+	path = libs/box2d
+	url = https://github.com/erincatto/box2d.git
+[submodule "libs/jolt"]
+	path = libs/jolt
+	url = https://github.com/jrouwe/JoltPhysics.git
+[submodule "libs/PhysX"]
+	path = libs/PhysX
+	url = https://github.com/NVIDIA-Omniverse/PhysX.git
