@@ -8,8 +8,15 @@ add_library(imgui STATIC
     imgui/imgui_widgets.cpp
     imgui/imgui_draw.cpp
     imgui/imgui_tables.cpp
-    imgui/imgui_demo.cpp)
-target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+    imgui/imgui_demo.cpp
+    imgui/backends/imgui_impl_sdl3.h
+    imgui/backends/imgui_impl_sdl3.cpp
+    imgui/backends/imgui_impl_sdlrenderer3.h
+    imgui/backends/imgui_impl_sdlrenderer3.cpp
+    imgui/backends/imgui_impl_opengl3.h
+    imgui/backends/imgui_impl_opengl3.cpp)
+target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/imgui ${CMAKE_CURRENT_SOURCE_DIR}/SDL3/include )
+
 
 
 #=== LIBRARY: imgui + Dear ImGui

@@ -20,7 +20,7 @@ target_include_directories(${TARGET} PUBLIC
     ${CMAKE_SOURCE_DIR}/libs/box2d/include 
 )
 
-target_link_libraries(${TARGET} PUBLIC imgui SDL3::SDL3 OpenAL::OpenAL stb box2d Jolt)
+target_link_libraries(${TARGET} PUBLIC imgui SDL3::SDL3 stb box2d Jolt)
 
 message(STATUS "SYSTEM ${CMAKE_SYSTEM_NAME}")
 # Emscripten-specific linker options
