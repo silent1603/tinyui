@@ -16,6 +16,3 @@
 [submodule "libs/jolt"]
 	path = libs/jolt
 	url = https://github.com/jrouwe/JoltPhysics.git
-[submodule "libs/PhysX"]
-	path = libs/PhysX
-	url = https://github.com/NVIDIA-Omniverse/PhysX.git
