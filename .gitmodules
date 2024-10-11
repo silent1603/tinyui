@@ -16,12 +16,10 @@
 [submodule "libs/jolt"]
 	path = libs/jolt
 	url = https://github.com/jrouwe/JoltPhysics.git
-[submodule "libs/PhysX"]
-	path = libs/PhysX
-	url = https://github.com/NVIDIA-Omniverse/PhysX.git
 [submodule "libs/SDL3"]
 	path = libs/SDL3
 	url = https://github.com/libsdl-org/SDL.git
 [submodule "libs/openal"]
 	path = libs/openal
 	url = https://github.com/kcat/openal-soft.git
+

@@ -14,9 +14,12 @@ target_include_directories(${TARGET} PUBLIC
     ${CMAKE_SOURCE_DIR}/libs/imgui
     ${CMAKE_SOURCE_DIR}/libs/imgui/backends
     ${CMAKE_SOURCE_DIR}/libs/sokol 
-    ${CMAKE_SOURCE_DIR}/libs/stb)
+    ${CMAKE_SOURCE_DIR}/libs/stb 
+    ${CMAKE_SOURCE_DIR}/libs/jolt/Jolt 
+    ${CMAKE_SOURCE_DIR}/libs/box2d/include 
+)
 
-target_link_libraries(${TARGET} PUBLIC sokol stb)
+target_link_libraries(${TARGET} PUBLIC sokol stb box2d Jolt)
 
 message(STATUS "SYSTEM ${CMAKE_SYSTEM_NAME}")
 # Emscripten-specific linker options
@@ -33,6 +36,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
     # WASM+JS size optimizations
     target_link_options(${TARGET} PRIVATE -sASSERTIONS=0 -sMALLOC=emmalloc --closure=1)
 else()
+    target_include_directories(${TARGET} PUBLIC  ${CMAKE_SOURCE_DIR}/libs/PhysX/include)
+    target_link_libraries(${TARGET} PUBLIC PhysXExtensions_static_64 PhysX_static_64 PhysXPvdSDK_static_64 PhysXCommon_static_64 PhysXFoundation_static_64)
     # explicitly strip dead code
     if (CMAKE_C_COMPILER_ID MATCHES "Clang")
         target_link_options(${TARGET} PRIVATE LINKER:-dead_strip)

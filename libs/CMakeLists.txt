@@ -18,6 +18,9 @@ add_library(stb STATIC
     stb_config/stb_image.cpp)
 target_include_directories(stb PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/stb)
 
+#=== LIBRARY: box2d
+add_subdirectory(box2d)
+
 #=== LIBRARY: sokol
 # add headers to the the file list because they are useful to have in IDEs
 set(SOKOL_HEADERS 
@@ -43,3 +46,13 @@ endif()
 
 target_link_libraries(sokol PUBLIC imgui)
 target_include_directories(sokol PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/sokol ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+
+
+# Jolt Library
+add_subdirectory(jolt/Build)
+
+
+
+
+
+
