@@ -1,81 +1,93 @@
+#include <SDL3/SDL.h>
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
+#include <cmath>
 
-#include "sokol_app.h"
-#include "sokol_gfx.h"
-#include "sokol_log.h"
-#include "sokol_glue.h"
-#define IMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include "imgui.h"
-#include "util/sokol_imgui.h"
+struct AppContext {
+    SDL_Window* window;
+    SDL_Renderer* renderer;
+    SDL_AppResult app_quit = SDL_APP_CONTINUE;
+};
 
-
-static struct {
-	sg_pass_action pass_action;
-} state;
-
-static void init(void) {
-	sg_desc desc = {};
-	desc.environment = sglue_environment();
-	desc.logger.func = slog_func;
-	
-	sg_setup(&desc);
-	simgui_desc_t imgui_desc = { 0 };
-	simgui_setup(&imgui_desc);
-
-	// initial clear color
-	sg_pass_action pass_action = {};
-	pass_action.colors[0] = {};
-	pass_action.colors[0].load_action = SG_LOADACTION_CLEAR;
-	pass_action.colors[0].clear_value = { 0.0f, 0.5f, 1.0f, 1.0 };
-
-	state.pass_action = pass_action;
+SDL_AppResult SDL_Fail() {
+    SDL_LogError(SDL_LOG_CATEGORY_CUSTOM, "Error %s", SDL_GetError());
+    return SDL_APP_FAILURE;
 }
 
-static void frame(void) {
-	simgui_frame_desc_t desc_t = {};
-	desc_t.width = sapp_width();
-	desc_t.height = sapp_height();
-	desc_t.delta_time = sapp_frame_duration();
-	desc_t.dpi_scale = sapp_dpi_scale();
-	simgui_new_frame(&desc_t);
+SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
+    // init the library, here we make a window so we only need the Video capabilities.
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        return SDL_Fail();
+    }
 
-	/*=== UI CODE STARTS HERE ===*/
+    // create a window
+    SDL_Window* window = SDL_CreateWindow("Window", 352, 430, SDL_WINDOW_RESIZABLE);
+    if (!window) {
+        return SDL_Fail();
+    }
 
-	ImGui::SetNextWindowPos({ 10, 10 }, ImGuiCond_Once, { 0, 0 });
-	ImGui::SetNextWindowSize({ 400, 100 }, ImGuiCond_Once);
-	ImGui::Begin("Hello Dear ImGui!", 0, ImGuiWindowFlags_None);
-	ImGui::ColorEdit3("Background", &state.pass_action.colors[0].clear_value.r, ImGuiColorEditFlags_None);
-	ImGui::End();
-	/*=== UI CODE ENDS HERE ===*/
-	sg_pass pass = {};
-	pass.action = state.pass_action;
-	pass.swapchain = sglue_swapchain();
-	sg_begin_pass(&pass);
-	simgui_render();
-	sg_end_pass();
-	sg_commit();
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+    if (!renderer) {
+        return SDL_Fail();
+    }
+
+    // print some information about the window
+    SDL_ShowWindow(window);
+    {
+        int width, height, bbwidth, bbheight;
+        SDL_GetWindowSize(window, &width, &height);
+        SDL_GetWindowSizeInPixels(window, &bbwidth, &bbheight);
+        SDL_Log("Window size: %ix%i", width, height);
+        SDL_Log("Backbuffer size: %ix%i", bbwidth, bbheight);
+        if (width != bbwidth) {
+            SDL_Log("This is a highdpi environment.");
+        }
+    }
+
+    // set up the application data
+    *appstate = new AppContext{
+       window,
+       renderer,
+    };
+
+    SDL_Log("Application started successfully!");
+
+    return SDL_APP_CONTINUE;
 }
 
-static void cleanup(void) {
-	simgui_shutdown();
-	sg_shutdown();
+SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
+    auto* app = (AppContext*)appstate;
+
+    if (event->type == SDL_EVENT_QUIT) {
+        app->app_quit = SDL_APP_SUCCESS;
+    }
+
+    return SDL_APP_CONTINUE;
 }
 
-static void event(const sapp_event* ev) {
-	simgui_handle_event(ev);
+SDL_AppResult SDL_AppIterate(void* appstate) {
+    auto* app = (AppContext*)appstate;
+
+    // draw a color
+    auto time = SDL_GetTicks() / 1000.f;
+    auto red = (std::sin(time) + 1) / 2.0 * 255;
+    auto green = (std::sin(time / 2) + 1) / 2.0 * 255;
+    auto blue = (std::sin(time) * 2 + 1) / 2.0 * 255;
+
+    SDL_SetRenderDrawColor(app->renderer, red, green, blue, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(app->renderer);
+    SDL_RenderPresent(app->renderer);
+
+    return app->app_quit;
 }
 
-sapp_desc sokol_main(int argc, char* argv[]) {
-	(void)argc;
-	(void)argv;
-	sapp_desc desc = {};
-	desc.init_cb = init;
-	desc.frame_cb = frame;
-	desc.cleanup_cb = cleanup;
-	desc.event_cb = event;
-	desc.window_title = "Hello Sokol + Dear ImGui";
-	desc.width = 800;
-	desc.height = 600;
-	desc.icon.sokol_default = true;
-	desc.logger.func = slog_func;
-	return desc;
+void SDL_AppQuit(void* appstate, SDL_AppResult result) {
+    auto* app = (AppContext*)appstate;
+    if (app) {
+        SDL_DestroyRenderer(app->renderer);
+        SDL_DestroyWindow(app->window);
+        delete app;
+    }
+
+    SDL_Log("Application quit successfully!");
 }

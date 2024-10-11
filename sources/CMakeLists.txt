@@ -13,13 +13,14 @@ target_sources(${TARGET} PUBLIC cpp/main.cpp)
 target_include_directories(${TARGET} PUBLIC 
     ${CMAKE_SOURCE_DIR}/libs/imgui
     ${CMAKE_SOURCE_DIR}/libs/imgui/backends
-    ${CMAKE_SOURCE_DIR}/libs/sokol 
+    ${CMAKE_SOURCE_DIR}/libs/SDL3/include 
+    ${CMAKE_SOURCE_DIR}/lins/openal/include 
     ${CMAKE_SOURCE_DIR}/libs/stb 
     ${CMAKE_SOURCE_DIR}/libs/jolt/Jolt 
     ${CMAKE_SOURCE_DIR}/libs/box2d/include 
 )
 
-target_link_libraries(${TARGET} PUBLIC sokol stb box2d Jolt)
+target_link_libraries(${TARGET} PUBLIC imgui SDL3::SDL3 OpenAL::OpenAL stb box2d Jolt)
 
 message(STATUS "SYSTEM ${CMAKE_SYSTEM_NAME}")
 # Emscripten-specific linker options
@@ -36,8 +37,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
     # WASM+JS size optimizations
     target_link_options(${TARGET} PRIVATE -sASSERTIONS=0 -sMALLOC=emmalloc --closure=1)
 else()
-    target_include_directories(${TARGET} PUBLIC  ${CMAKE_SOURCE_DIR}/libs/PhysX/include)
-    target_link_libraries(${TARGET} PUBLIC PhysXExtensions_static_64 PhysX_static_64 PhysXPvdSDK_static_64 PhysXCommon_static_64 PhysXFoundation_static_64)
     # explicitly strip dead code
     if (CMAKE_C_COMPILER_ID MATCHES "Clang")
         target_link_options(${TARGET} PRIVATE LINKER:-dead_strip)
@@ -50,8 +49,11 @@ else()
             "-framework Cocoa"
             "-framework MetalKit"
             "-framework Metal")
-    elif(CMAKE_SYSTEM_NAME STREQUAL Windows)
-    elif (CMAKE_SYSTEM_NAME STREQUAL Linux) 
+    elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        if(MSVC)
+            set_property(TARGET ${TARGET} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+        endif()
+    elseif (CMAKE_SYSTEM_NAME STREQUAL Linux) 
         message(STATUS "Linux Linking System Libs")
         target_link_libraries(${TARGET} INTERFACE X11 Xi Xcursor GL dl m)
         target_link_libraries(${TARGET} PUBLIC Threads::Threads)

@@ -21,34 +21,12 @@ target_include_directories(stb PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/stb)
 #=== LIBRARY: box2d
 add_subdirectory(box2d)
 
-#=== LIBRARY: sokol
-# add headers to the the file list because they are useful to have in IDEs
-set(SOKOL_HEADERS 
-    sokol/sokol_gfx.h 
-    sokol/sokol_app.h 
-    sokol/util/sokol_imgui.h 
-    sokol/sokol_glue.h)
-    if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-    add_library(sokol STATIC sokol_config/sokol.cpp  ${SOKOL_HEADERS})
-    target_compile_options(sokol PRIVATE -x objective-c)
-    target_link_libraries(sokol PUBLIC
-    "-framework QuartzCore"
-    "-framework Cocoa"
-    "-framework MetalKit"
-    "-framework Metal")
-    else()
-    add_library(sokol STATIC sokol_config/sokol.cpp ${SOKOL_HEADERS})
-    if (CMAKE_SYSTEM_NAME STREQUAL Linux)
-    target_link_libraries(sokol INTERFACE X11 Xi Xcursor GL dl m)
-    target_link_libraries(sokol PUBLIC Threads::Threads)
-    endif()
-endif()
+#=== LIBRARY: SDL3
+set(SDL_EXAMPLES OFF)
+set(SDL_TESTS OFF)
+add_subdirectory(SDL3)
 
-target_link_libraries(sokol PUBLIC imgui)
-target_include_directories(sokol PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/sokol ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
-
-
-# Jolt Library
+#=== LIBRARY: Jolt 
 add_subdirectory(jolt/Build)
 
 
