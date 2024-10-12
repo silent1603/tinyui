@@ -180,5 +180,29 @@ set(CMAKE_SHARED_LINKER_FLAGS_DISTRIBUTION "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}
 # Enable link time optimization in Release and Distribution mode if requested and available
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
+
+if (EMSCRIPTEN)
+    option(TINYUI_WASM_SINGLE_FILE "Embed WASM inside the generated .js" ON)
+endif()
+
+option(TINYUI_SANITIZE_THREAD         "Enable thread sanitizer" OFF)
+option(TINYUI_SANITIZE_ADDRESS        "Enable address sanitizer" OFF)
+option(TINYUI_SANITIZE_UNDEFINED      "Enable undefined sanitizer" OFF)
+
+if (TINYUI_SANITIZE_THREAD)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=thread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+endif()
+
+if (TINYUI_SANITIZE_ADDRESS)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+endif()
+
+if (TINYUI_SANITIZE_UNDEFINED)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+endif()
+
 add_subdirectory(libs)
 add_subdirectory(sources)

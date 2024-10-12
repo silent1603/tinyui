@@ -11,7 +11,7 @@
 #else
 #include <SDL3/SDL_opengl.h>
 #endif
-
+const auto kFontScale = 3.00f;
 struct AppContext
 {
     SDL_Window *window;
@@ -73,6 +73,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return SDL_Fail();
     }
+
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
@@ -91,8 +92,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         }
     }
 
-
-
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -101,6 +100,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
+    io.Fonts->AddFontFromFileTTF("fonts/font.ttf", kFontScale);
     // set up the application data
     *appstate = new AppContext{
         window,
@@ -116,13 +116,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     // Setup Platform/Renderer backends
     ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
-
-#ifdef __EMSCRIPTEN__
-    // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
-    // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
-    io.IniFilename = nullptr;
-
-#endif
     SDL_Log("Application started successfully!");
 
     return SDL_APP_CONTINUE;
@@ -136,7 +129,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     {
         app->app_quit = SDL_APP_SUCCESS;
     }
-
     return SDL_APP_CONTINUE;
 }
 
@@ -191,7 +183,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(app->window);
-
 
     return app->app_quit;
 }
