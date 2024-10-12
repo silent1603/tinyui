@@ -21,7 +21,8 @@ target_include_directories(${TARGET} PUBLIC
     ${CMAKE_SOURCE_DIR}/libs/glm/glm
 )
 
-target_link_libraries(${TARGET} PUBLIC imgui SDL3::SDL3 stb box2d Jolt glm::glm)
+set(common_lib imgui SDL3::SDL3 stb box2d Jolt glm::glm)
+target_link_libraries(${TARGET} PUBLIC ${common_lib})
 
 message(STATUS "SYSTEM ${CMAKE_SYSTEM_NAME}")
 # Emscripten-specific linker options
@@ -48,6 +49,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
 
     set_target_properties(${TARGET} PROPERTIES LINK_FLAGS "--preload-file ${PROJECT_SOURCE_DIR}/assets/ ${EXTRA_FLAGS} ")
 else()
+
+    if(Vulkan_FOUND)
+        # Include Vulkan directories
+        target_include_directories(${TARGET} PRIVATE ${Vulkan_INCLUDE_DIR})
+
+        # Link Vulkan libraries
+        target_link_libraries(${TARGET} PRIVATE ${Vulkan_LIBRARIES})
+    endif()
+
     # explicitly strip dead code
     if (CMAKE_C_COMPILER_ID MATCHES "Clang")
         target_link_options(${TARGET} PRIVATE LINKER:-dead_strip)
@@ -61,6 +71,10 @@ else()
             "-framework MetalKit"
             "-framework Metal")
     elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        find_package(OpenGL REQUIRED COMPONENTS OpenGL)
+
+        target_link_libraries(${TARGET} PUBLIC ${OPENGL_gl_LIBRARY})
+        message(STATUS ${OPENGL_INCLUDE_DIR})
         if(MSVC)
             set_property(TARGET ${TARGET} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
         endif()

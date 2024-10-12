@@ -1,5 +1,9 @@
 
 #=== LIBRARY: imgui + Dear ImGui
+if(Vulkan_FOUND)
+    message(STATUS "Vulkan found: ${Vulkan_LIBRARIES}")
+endif()
+
 set(imgui_source     
 imgui/imgui.cpp
 imgui/imgui.h
@@ -39,17 +43,29 @@ else()
     elseif (CMAKE_SYSTEM_NAME STREQUAL Linux) 
         list(APPEND imgui_source     
             imgui/backends/imgui_impl_opengl3.h 
-            imgui/backends/imgui_impl_opengl3.cpp
-            imgui/backends/imgui_impl_vulkan.h 
-            imgui/backends/imgui_impl_vulkan.cpp)
+            imgui/backends/imgui_impl_opengl3.cpp)
     endif()
 endif()
+
+if(Vulkan_FOUND)
+    list(APPEND imgui_source     
+    imgui/backends/imgui_impl_vulkan.h 
+    imgui/backends/imgui_impl_vulkan.cpp)
+  
+endif()
+
 
 add_library(imgui STATIC ${imgui_source})
 
 target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/imgui 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/SDL3/include )
+if(Vulkan_FOUND)
+    # Include Vulkan directories
+    target_include_directories(imgui PRIVATE ${Vulkan_INCLUDE_DIR})
 
+    # Link Vulkan libraries
+    target_link_libraries(imgui PRIVATE ${Vulkan_LIBRARIES})
+endif()
 
 
 #=== LIBRARY: imgui + Dear ImGui

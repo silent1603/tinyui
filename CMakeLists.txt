@@ -204,5 +204,7 @@ if (TINYUI_SANITIZE_UNDEFINED)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
 endif()
 
+find_package(Vulkan)
+
 add_subdirectory(libs)
 add_subdirectory(sources)
